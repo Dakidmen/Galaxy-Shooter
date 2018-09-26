@@ -33,8 +33,10 @@ cannonRight = [[int(ship_y), int(ship_x+2)]];
 #Starting shooters:
 def shoot(y,x,right,left):
     '''shoots cannon, only shoots side cannons after boost is true'''
-    up = [[int(y-2), int(x)]];
-    w.addch(up[0][0], up[0][1], '¦');
+    leftS = None;
+    rightS = None;
+    upS = [[int(y-2), int(x)]];
+    w.addch(upS[0][0], upS[0][1], '¦');
 
     if "yes" in right:
         rightS = [[int(y-1), int(x+2)]];
@@ -42,6 +44,8 @@ def shoot(y,x,right,left):
     if "yes" in left:
         leftS = [[int(y-1), int(x-2)]];
         w.addch(leftS[0][0], leftS[0][1], '¦');
+
+    return leftS, rightS, upS;
 
 #Starting booster:
 boostLeft = [sh//2, sw//2];
@@ -52,6 +56,7 @@ w.addch(boostRight[0], boostRight[1], 'X');
 key = None;
 shootRight = "no";
 shootLeft = "no";
+#body = [ship[0],wingL[0],wingR[0],cannonLeft[0],cannonRight[0],cannon[0]];
 while True:
     next_key = w.getch();
     key = key if next_key == -1 else next_key;
@@ -97,11 +102,21 @@ while True:
         new_wingL[1] += 1
         new_wingR[1] += 1
         key = None;
+
     #SHOOT !
     if key == curses.KEY_HOME:
-        for i in range(11):
-            shoot(new_head[0],new_head[1],shootRight,shootLeft);
+        bulletLeft,bullerRight,bulletUp = shoot(new_head[0],new_head[1],shootRight,shootLeft);
+        '''
+        new_bulletLeft = [bulletLeft[0][0], bulletLeft[0][1]];
+        new_bullerRigth = [bullerRight[0][0], bullerRight[0][1]];
+        new_bulletUp = [bulletUp[0][0], bulletUp[0][1]];
+    
+        for i in range(1,11):
+            new_bulletLeft[0] -= i;
+            new_bulletRight[0] -= i;
+            new_bulletUp[0] -= i;
             #shoot(new_head[0],new_head[1],"yes","yes");
+        '''
         key = None;
     
     ship.insert(0,new_head);
@@ -113,7 +128,7 @@ while True:
 
     
     #if ship gets boostLeft:
-    if ship[0] == boostLeft:
+    if (ship[0] == boostLeft) or (cannonLeft[0] == boostLeft) or (cannonRight[0] == boostLeft) or (cannon[0] == boostLeft):
         boostLeft = None;
         while boostLeft is None:
             new_boostLeft = [
@@ -123,7 +138,8 @@ while True:
             boostLeft = new_boostLeft if new_boostLeft not in ship else None;
         w.addch(boostLeft[0], boostLeft[1], 'O');
         shootLeft = "yes";
-    if ship[0] == boostRight:
+    #if ship gets boostRight:
+    if (ship[0] == boostRight) or (cannonLeft[0] == boostRight) or (cannonRight[0] == boostRight) or (cannon[0] == boostRight):
         boostRight = None;
         while boostRight is None:
             new_boostRight = [
@@ -131,7 +147,7 @@ while True:
                 random.randint(1, sw-1)
             ]
             boostRight = new_boostRight if new_boostRight not in ship else None;
-        w.addch(boostRight[0], boostRight[1], 'O');
+        w.addch(boostRight[0], boostRight[1], 'X');
         shootRight = "yes";
     else:
         #Movement allow of:
