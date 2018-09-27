@@ -204,7 +204,4 @@ while True:
     window.addch(int(cannonLeft[0][0]), int(cannonLeft[0][1]), '‡');
     window.addch(int(cannonRight[0][0]), int(cannonRight[0][1]), '‡');
     window.addch(int(cannon[0][0]), int(cannon[0][1]), 'Ѧ');
-
-    if shoot == True:
-        window.addch(int(bulletUp[0][0]), int(bulletUp[0][1]), '¦');
-        shoot = False;
+    
