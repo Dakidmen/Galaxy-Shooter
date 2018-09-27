@@ -1,5 +1,6 @@
 import curses;
 import random;
+import time;
 
 #iniate screen
 screen = curses.initscr()
@@ -38,14 +39,19 @@ def shoot(y,x,right,left):
     upS = [[int(y-2), int(x)]];
     w.addch(upS[0][0], upS[0][1], '¦');
 
-    if "yes" in right:
+    if True in right:
         rightS = [[int(y-1), int(x+2)]];
         w.addch(rightS[0][0], rightS[0][1], '¦');
-    if "yes" in left:
+    if True in left:
         leftS = [[int(y-1), int(x-2)]];
         w.addch(leftS[0][0], leftS[0][1], '¦');
+    
+    return upS;
 
-    return leftS, rightS, upS;
+def shootPosition(y,x):
+    y = int(y)
+    x = int(x)
+    return y,x
 
 #Starting booster:
 boostLeft = [sh//2, sw//2];
@@ -54,9 +60,13 @@ boostRight = [sh//6, sw//6];
 w.addch(boostRight[0], boostRight[1], 'X');
 
 key = None;
-shootRight = "no";
-shootLeft = "no";
+shootRight = False;
+shootLeft = False;
+shootUp = False;
+shoot = False;
 #body = [ship[0],wingL[0],wingR[0],cannonLeft[0],cannonRight[0],cannon[0]];
+
+#Start Game
 while True:
     next_key = w.getch();
     key = key if next_key == -1 else next_key;
@@ -69,6 +79,9 @@ while True:
     new_cannon = [cannon[0][0], cannon[0][1]];
     new_cannonLeft = [cannonLeft[0][0], cannonLeft[0][1]];
     new_cannonRight = [cannonRight[0][0], cannonRight[0][1]];
+    #Bullets:
+    bulletUp = [[int(new_head[0]-2), int(new_head[1])]];
+    new_bulletUp = [bulletUp[0][0], bulletUp[0][1]]
 
     if key == curses.KEY_DOWN:
         new_head[0] += 1;
@@ -105,26 +118,26 @@ while True:
 
     #SHOOT !
     if key == curses.KEY_HOME:
-        bulletLeft,bullerRight,bulletUp = shoot(new_head[0],new_head[1],shootRight,shootLeft);
-        '''
-        new_bulletLeft = [bulletLeft[0][0], bulletLeft[0][1]];
-        new_bullerRigth = [bullerRight[0][0], bullerRight[0][1]];
-        new_bulletUp = [bulletUp[0][0], bulletUp[0][1]];
-    
-        for i in range(1,11):
-            new_bulletLeft[0] -= i;
-            new_bulletRight[0] -= i;
-            new_bulletUp[0] -= i;
-            #shoot(new_head[0],new_head[1],"yes","yes");
-        '''
+        shoot = True;
+        current_y, current_x = shootPosition(new_head[0],new_head[1]);
+        # bulletUp = shoot(new_head[0],new_head[1],shootRight,shootLeft);
+        for z in range(current_y,0,-1):
+            screen.clear()
+            screen.addch(z,current_x, '¦');
+            screen.refresh();
+            time.sleep(0.2)
         key = None;
-    
+        
     ship.insert(0,new_head);
     wingL.insert(0,new_wingL);
     wingR.insert(0,new_wingR);
     cannon.insert(0,new_cannon);
     cannonLeft.insert(0,new_cannonLeft);
     cannonRight.insert(0,new_cannonRight);
+    if shoot == True:
+        bulletUp.insert(0, new_bulletUp);
+    
+    
 
     
     #if ship gets boostLeft:
@@ -137,7 +150,7 @@ while True:
             ]
             boostLeft = new_boostLeft if new_boostLeft not in ship else None;
         w.addch(boostLeft[0], boostLeft[1], 'O');
-        shootLeft = "yes";
+        shootLeft = True;
     #if ship gets boostRight:
     if (ship[0] == boostRight) or (cannonLeft[0] == boostRight) or (cannonRight[0] == boostRight) or (cannon[0] == boostRight):
         boostRight = None;
@@ -148,7 +161,7 @@ while True:
             ]
             boostRight = new_boostRight if new_boostRight not in ship else None;
         w.addch(boostRight[0], boostRight[1], 'X');
-        shootRight = "yes";
+        shootRight = True;
     else:
         #Movement allow of:
         #ship and wings
@@ -159,7 +172,7 @@ while True:
         tailR = wingR.pop();
         w.addch(int(tailR[0]), int(tailR[1]), ' ');
         
-        #cannon
+        #cannonUp
         tailUp = cannon.pop();
         w.addch(tailUp[0], tailUp[1], ' ');
 
@@ -167,9 +180,15 @@ while True:
         tailLeft = cannonLeft.pop();
         w.addch(tailLeft[0], tailLeft[1], ' ');
 
-        #cannonLeft
+        #cannonRight
         tailRight = cannonRight.pop();
         w.addch(tailRight[0], tailRight[1], ' ');
+
+        #Bullets
+        if shoot == True:
+            tailBUp = bulletUp.pop();
+            w.addch(tailBUp[0], tailBUp[1], ' ');
+
     
     w.addch(int(ship[0][0]), int(ship[0][1]), curses.ACS_CKBOARD);
     w.addch(int(wingL[0][0]), int(wingL[0][1]), 'm');
@@ -177,7 +196,7 @@ while True:
     w.addch(int(cannonLeft[0][0]), int(cannonLeft[0][1]), '‡');
     w.addch(int(cannonRight[0][0]), int(cannonRight[0][1]), '‡');
     w.addch(int(cannon[0][0]), int(cannon[0][1]), 'Ѧ');
-    
-    #Bullets:
-    #w.addch(int(cannon[0][0]), int(cannon[0][1]), '¦');
 
+    if shoot == True:
+        w.addch(int(bulletUp[0][0]), int(bulletUp[0][1]), '¦');
+        shoot = False;
