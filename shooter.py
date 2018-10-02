@@ -11,7 +11,7 @@ window = curses.newwin(sh, sw, 0,0);
 window.keypad(1);
 
 window.timeout(1);
-border = window.border(curses.ACS_VLINE, curses.ACS_VLINE, curses.ACS_HLINE, curses.ACS_HLINE, curses.ACS_ULCORNER, curses.ACS_URCORNER, curses.ACS_LLCORNER, curses.ACS_LRCORNER)
+#border = window.border(curses.ACS_VLINE, curses.ACS_VLINE, curses.ACS_HLINE, curses.ACS_HLINE, curses.ACS_ULCORNER, curses.ACS_URCORNER, curses.ACS_LLCORNER, curses.ACS_LRCORNER)
 #Ship body:
 
 ship_x = sw/4;
@@ -31,8 +31,14 @@ cannonLeft = [[int(ship_y), int(ship_x-2)]];
 #   Right
 cannonRight = [[int(ship_y), int(ship_x+2)]];
 
+def quitGame():
+    #record(score);
+    #scoreboard(score);
+    os.system("client.py")
+    curses.endwin();
+    quit();
 #Starting shooters:
-def shootR(y,x,right,z):
+def shootR(x,right,z):
     '''shoots cannonRight, ater boost is true'''
     if right == True:
         bulletRight = [z, x];
@@ -41,7 +47,7 @@ def shootR(y,x,right,z):
         bulletRight = [0,0];
         return bulletRight;
 
-def shootL(y,x,left,z):
+def shootL(x,left,z):
     '''shoots cannonLeft, ater boost is true'''
     if left == True:
         bulletLeft = [z, x];
@@ -128,25 +134,25 @@ while True:
     if key == curses.KEY_HOME:
         shoot = True;
         current_y, current_x = shootPosition(new_head[0],new_head[1]);
-        for z in range(current_y-2,0,-1):
-            #kill(bulletUp);
-
+        for z in range(current_y-2,0,-1):  #z = moving y
             #bulletRight
-            bulletRight = shootR(current_y,current_x+2,shootRight,z);
+            bulletRight = shootR(current_x+4,shootRight,z);
             window.addch(bulletRight[0],bulletRight[1], '¦');
+            
             #bulletLeft
-            bulletLeft = shootL(current_y,current_x-2,shootLeft,z);
+            bulletLeft = shootL(current_x-2,shootLeft,z);
             window.addch(bulletLeft[0], bulletLeft[1], '¦');
             #bulletUp
             bulletUp = [z, current_x];
             window.addch(z,current_x, '¦');
 
-            border = window.border(curses.ACS_VLINE, curses.ACS_VLINE, curses.ACS_HLINE, curses.ACS_HLINE, curses.ACS_ULCORNER, curses.ACS_URCORNER, curses.ACS_LLCORNER, curses.ACS_LRCORNER)
+            #border = window.border(curses.ACS_VLINE, curses.ACS_VLINE, curses.ACS_HLINE, curses.ACS_HLINE, curses.ACS_ULCORNER, curses.ACS_URCORNER, curses.ACS_LLCORNER, curses.ACS_LRCORNER)
             window.refresh();
             time.sleep(0.05)
             window.delch(z,current_x);
             window.delch(z,current_x-2);
             window.delch(z,current_x+2);
+            
             
         key = None;
         
@@ -159,8 +165,10 @@ while True:
     
     
     #if ship in border:
-    #if (wingR[0] == boostRight) or (wingL[0] == boostRight) or (ship[0] == border) or (cannonLeft[0] == border) or (cannonRight[0] == border) or (cannon[0] == border):
-        
+    '''
+    if (wingR[0] == boostRight) or (wingL[0] == boostRight) or (ship[0] == border) or (cannonLeft[0] == border) or (cannonRight[0] == border) or (cannon[0] == border):
+            quitGame();
+    '''
     #if ship gets boostLeft:
     if (wingR[0] == boostRight) or (wingL[0] == boostRight) or (ship[0] == boostLeft) or (cannonLeft[0] == boostLeft) or (cannonRight[0] == boostLeft) or (cannon[0] == boostLeft):
         boostLeft = None;
